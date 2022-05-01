@@ -1,0 +1,1376 @@
+/*************************************************************************************
+* MessageNet Systems - Connections
+* Favorites-screen stylesheet (linked by smcgi_favorites.c)
+*
+* Created:	2013 Aug, Chris Rider
+*
+* Revisions:	2013 Dec, Chris Rider	Modified messagecell from DIV to UL/LI. This markup fits better with what it really is (a list), and plays nicer with the first version of the YUI drag-and-drop capability (as given in examples). Also made .clearfloats selector more agnostic to which element it applies to.
+* 		2014 Mar, Chris Rider	Added styles for "Edit Favorites" panel dialog.
+: Upd:  Exiting reply mode now collapses std-reply subsection.
+*		2014 May, Chris Rider
+*		2014 Jul, Chris Rider	Restructured commenting system to be easier to work with. Added stuff for section header / re-vamped messagecell structures.
+*
+* NOTES:
+*
+* A good reference:  http://www.w3schools.com/cssref/
+*
+* Sure, many of the selectors in this file might seem redundant. But that is for two 
+* reasons: 1)to document the tree-structure of the client document, and 2)to further 
+* ensure that we are strict in which nodes we apply styles to.
+*
+* Also, sure, there are a lot of comments and it can be argued that this uses 
+* unecessary bandwidth. But in today's technology environment, I think it's a fair 
+* trade-off to ensure that the developer can understand what's happening. Anyway,
+* there might be an option to minimize this at compile time, using YUICompressor.
+*************************************************************************************/
+
+#version {	/*this isn't valid CSS; but this way, it should get included into the compressed file (by minify) without breaking anything*/
+	version: "0.16.6-beta";
+	build: "2015.05.07";
+	}
+
+/*************************************************************************************
+* Page-wide Styles
+*  (these mainly take care of major page-wide node elements)
+*************************************************************************************/
+html { /*HTML tag (the root node of the document)*/
+	width: 100%; /*the root node should take the full browser window's width*/
+	height: 100%; /*the root node should take the full browser window's height*/
+	padding: 0; /*the root node shall have no padding, so we can ensure an edge-to-edge design*/
+	}
+
+body { /*BODY tag*/
+	width: 100%; /*full width of the root (HTML) node*/
+	height: 100%; /*full height of the root (HTML) node*/
+	margin: 0; /*go edge-to-edge of the browser window*/
+	padding: 0; /*any nodes inside this come to the browser edge-to-edge*/
+	background-color: #cccccc; /*gives a shaded background*/
+	font-family: arial,verdana,sans-serif;/* render all text in a font that's easy to read on pixel-based screens */
+	}
+body#smartbanner { /*BODY tag on the smart banner page*/
+	/*styles are coded inline, becaus need a dynamic C string for the logo background*/
+	}
+	body#smartbanner h2,h3 {
+		font-weight: normal
+		}
+	/*body#smartbanner .applesmartbannerlinkblue {*/ /*try to match the same color as the blue in Apple's smart banner*/
+	/*	color: #3969ff;
+		}
+	body#smartbanner div#browserloginoption {
+		background-color: gray;
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		padding: 1em 0 1em 0;
+		}*/
+body#nologinavailable { /*BODY tag on the no-login-available page*/
+	/*styles are coded inline, becaus need a dynamic C string for the logo background*/
+	}
+
+.clearfloats { /*special class of element that restores normal document flow - required after any left or right floated nodes (acts sort of like a new-line-feed)*/
+	clear: both; /*clear both either left and-or right floats*/
+	}
+
+.roundedcorners { /*Any element with this class will have rounded corners - most modern browsers should be okay with this*/
+	-moz-border-radius: 8px; /*firefox*/
+	-webkit-border-radius: 8px; /*safari, chrome (fork of kthml)*/
+	-khtml-border-radius: 8px; /*KDE HTML layout engines*/
+	border-radius: 8px; /*css3*/
+	}
+.roundedcorners6 { /*Any element with this class will have rounded corners - most modern browsers should be okay with this*/
+	-moz-border-radius: 6px; /*firefox*/
+	-webkit-border-radius: 6px; /*safari, chrome (fork of kthml)*/
+	-khtml-border-radius: 6px; /*KDE HTML layout engines*/
+	border-radius: 6px; /*css3*/
+	}
+.roundedtopcorners8 { /*Any element with this class will have rounded corners on the top of 8px - most modern browsers should be okay with this*/
+	-moz-border-radius: 8px 8px 0 0; /*firefox*/
+	-webkit-border-radius: 8px 8px 0 0; /*safari, chrome (fork of kthml)*/
+	-khtml-border-radius: 8px 8px 0 0; /*KDE HTML layout engines*/
+	border-radius: 8px 8px 0 0; /*css3*/
+	}
+.roundedtopcorners6 { /*Any element with this class will have rounded corners on the top of 6px - most modern browsers should be okay with this*/
+	-moz-border-radius: 6px 6px 0 0; /*firefox*/
+	-webkit-border-radius: 6px 6px 0 0; /*safari, chrome (fork of kthml)*/
+	-khtml-border-radius: 6px 6px 0 0; /*KDE HTML layout engines*/
+	border-radius: 6px 6px 0 0; /*css3*/
+	}
+.roundedblcorner6 { /*Any element with this class will have one rounded corner on the bottom-left of 6px - most modern browsers should be okay with this*/
+	-moz-border-radius: 0 0 0 6px; /*firefox*/
+	-webkit-border-radius: 0 0 0 6px; /*safari, chrome (fork of kthml)*/
+	-khtml-border-radius: 0 0 0 6px; /*KDE HTML layout engines*/
+	border-radius: 0 0 0 6px; /*css3*/
+	}
+
+.notransition { /*Any element with this class should get its transition directives cleared (may have to flush CSS somehow... e.g. .offsetHeight, etc.) */
+	-moz-transition: none !important;
+	-webkit-transition: none !important;
+	-o-transition: all 0 ease-in !important;
+	transition: none !important;
+	}
+
+table td.fieldlabel {
+	font-weight: bold;
+	text-align: right;
+	padding-right: 1em;
+	}
+table td.field input {
+	font-size: 14px;
+	padding: 3px 2px 5px 1px;
+}
+
+span.yui3-widget-buttons {
+	width: 100%;
+	}
+button.btndelete {
+	float: left;
+	color: #990000;
+	}
+button.confirmsendbtn, button.confirmclosemsgbtn { /*confirm-send, confirm-toggle buttons*/
+	font-size: 1.5em;
+	}
+button.confirmsendbtnyes, button.confirmclosemsgbtnyes { /*confirm-send, confirm-toggle 'yes' button*/
+	float: left;
+	}
+
+button.bigiosstyle { /*big iOS style type of button (with big rounded ends)... needed by non-iOS clients to replicate that look */
+	border: 1px solid #666666;
+	/* the following radii should be as large as possible without breaking things, to give the impression of completely rounded ends */
+	-moz-border-radius: 40px; /*firefox*/
+	-webkit-border-radius: 40px; /*safari, chrome (fork of kthml)*/
+	-khtml-border-radius: 40px; /*KDE HTML layout engines*/
+	border-radius: 40px; /*css3*/
+	/* the following applies the gradient (only works with CSS3 browsers) */
+	background: -webkit-linear-gradient(#eeeeee, #cccccc); /* Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(#eeeeee, #cccccc); /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(#eeeeee, #cccccc); /* For Firefox 3.6 to 15 */
+	background: linear-gradient(#eeeeee, #cccccc); /* Standard syntax */
+	}
+
+/* NOTE: doesn't work... likely because transition won't work on the display property?
+.yui3-widget-mask {
+	-moz-transition-property: all;
+	-moz-transition-duration: 0.5s;
+	-moz-transition-timing-function: ease-out;
+	-webkit-transition-property: all;
+	-webkit-transition-duration: 0.5s;
+	-webkit-transition-timing-function: ease-out;
+	-o-transition-property: all;
+	-o-transition-duration: 0.5s;
+	-o-transition-timing-function: ease-out;
+	transition-property: all;
+	transition-duration: 0.5s;
+	transition-timing-function: ease-out;
+	}
+*/
+
+.yui3-panel, .yui3-panel-focused { /*any currently focused/visible YUI Panel*/
+	position: fixed !important; /*this prevents scrolling of the panel with the page, as well as stops list jumping whenever shown*/
+	}
+
+/* Spinner stuff */
+.spinner {
+	width: 0;
+	height: 0;
+	margin: auto auto;
+	position: relative;
+	}
+.spinner > div {
+	background-color: #33ffff;
+	width: 12px;
+	height: 50px;
+	position: absolute;
+	left: -10px;
+	bottom: 15px;
+	border-radius: 5px;
+	-webkit-transform-origin: 6px 85px;
+	transform-origin: 6px 85px;
+	-webkit-animation: spinner 0.8s infinite;
+	animation: spinner 0.8s infinite;
+	}
+	#spinnerline0 {
+		-webkit-transform: rotate(0deg);
+		transform: rotate(0deg);
+		-webkit-animation-delay: 0.8s;
+		animation-delay: 0.8s;
+		}
+	/*.spinner > div:nth-child(2) {*/
+	#spinnerline1 {
+		-webkit-transform: rotate(45deg);
+		transform: rotate(45deg);
+		-webkit-animation-delay: 0.1s;
+		animation-delay: 0.1s;
+		}
+	#spinnerline2 {
+		-webkit-transform: rotate(90deg);
+		transform: rotate(90deg);
+		-webkit-animation-delay: 0.2s;
+		animation-delay: 0.2s;
+		}
+	#spinnerline3 {
+		-webkit-transform: rotate(135deg);
+		transform: rotate(135deg);
+		-webkit-animation-delay: 0.3s;
+		animation-delay: 0.3s;
+		}
+	#spinnerline4 {
+		-webkit-transform: rotate(180deg);
+		transform: rotate(180deg);
+		-webkit-animation-delay: 0.4s;
+		animation-delay: 0.4s;
+		}
+	#spinnerline5 {
+		-webkit-transform: rotate(225deg);
+		transform: rotate(225deg);
+		-webkit-animation-delay: 0.5s;
+		animation-delay: 0.5s;
+		}
+	#spinnerline6 {
+		-webkit-transform: rotate(270deg);
+		transform: rotate(270deg);
+		-webkit-animation-delay: 0.6s;
+		animation-delay: 0.6s;
+		}
+	#spinnerline7 {
+		-webkit-transform: rotate(315deg);
+		transform: rotate(315deg);
+		-webkit-animation-delay: 0.7s;
+		animation-delay: 0.7s;
+		}
+	@-webkit-keyframes spinner {
+	0% {
+		background: transparent;
+		}
+	30% {
+		background: #33ffff;
+		}
+	100% {
+		background: transparent;
+		}
+	}
+	@keyframes spinner {
+	0% {
+		background: transparent;
+		}
+	30% {
+		background: #33ffff;
+		}
+	100% {
+		background: transparent;
+		}
+	}
+
+img.button {
+	border: 1px solid gray;
+	background-color: #eeeeee;
+	font-size: 16px;
+	/*padding: 0 4px;*/
+	padding: 4px 4px 6px 4px;
+	margin: -6px 0 -10px 0;
+	}
+
+a.subsectionAnchor {
+	}
+
+
+/*************************************************************************************
+* Layout/Main Styles
+*  (these mostly take care of how the page and major elements are laid-out, but also
+*   other non-layout-related stuff, as well - this is the main guy here)
+*************************************************************************************/
+div#pagewrapper { /*DIV tag that has an ID attribute value of "page" - it's what contains the entire "page"*/
+	cursor: default; /*Prevent mouse cursor from becoming an "I-beam" when over text*/
+	}
+
+	div#headerwrapper { /*DIV tag that has an ID attribute value of "headerwrapper" - it's what contains the entire page header (like logo, title, etc.)*/
+		background-color: #000000; /*make this part have a dark background*/
+		color: #ffffff; /*make sure the text is lighter than the background, so it can be read*/
+		height: 60px; /*if this is modified, you may also need to modify the drop-down menu code?*/
+		position: fixed; /*prevents the header from scrolling up out of view*/
+		width: 100%;
+		top: 0;
+		z-index: 1; /*just higher than bodywrapper*/
+		-moz-transition-property: background-color;
+		-moz-transition-duration: 0.3s;
+		-moz-transition-timing-function: ease-out;
+		-webkit-transition-property: background-color;
+		-webkit-transition-duration: 0.3s;
+		-webkit-transition-timing-function: ease-out;
+		-o-transition-property: background-color;
+		-o-transition-duration: 0.3s;
+		-o-transition-timing-function: ease-out;
+		transition-property: background-color;
+		transition-duration: 0.3s;
+		transition-timing-function: ease-out;
+		}
+	div#headerwrapper.myfavorites { /*DIV tag that has an ID attribute value of "headerwrapper" and classed "myfavorites" - it's what contains the entire page header (like logo, title, etc.)*/
+		}
+	div#headerwrapper.editmode { /*DIV tag that has an ID attribute value of "headerwrapper" and classed "editmode" - it's what contains the entire page header (like logo, title, etc.)*/
+		background-color: #770000; /*make this part have a red background*/
+		}
+	div#headerwrapper.replyingmode { /*DIV tag that has an ID attribute value of "headerwrapper" and classed "replyingmode" - it's what contains the entire page header (like logo, title, etc.)*/
+		background-color: #2255ff; /*make this part have a light-blue background*/
+		}
+
+		div#menuiconwrapper { /*DIV tag that has an ID attribute value of "menuiconwrapper" - it's what contains the menu icon*/
+			float: right;
+			height: 100%;
+			background-color: inherit;
+			position: absolute;
+			top: 0;
+			right: 0;
+			z-index: 1001;
+			}
+			img#menuicon { /*IMG tag that has an ID attribute value of "menuicon" - it's the actual menu icon*/
+				margin: 13px 8px 0 8px;
+				}
+			div#menuicon {
+				width: 32px;
+				height: 32px;
+				margin: 13px 8px 0 8px;
+				cursor: pointer;
+				}
+				div#menuicon .hamburgerline {
+					display: block;
+					width: 100%;
+					height: 6px;
+					background-color: #ffffff;
+					margin-bottom: 7px;
+					border-radius: 4px;
+					}
+				div#menuicon .hamburgerline:last-child {
+					margin-bottom: 0;
+					}
+			div#menuicon.unavailable {
+				width: 32px;
+				height: 32px;
+				margin: 13px 8px 0 8px;
+				}
+				div#menuicon.unavailable .hamburgerline {
+					display: block;
+					width: 100%;
+					height: 6px;
+					background-color: #000000;
+					margin-bottom: 7px;
+					border-radius: 4px;
+					}
+				div#menuicon.unavailable .hamburgerline:last-child {
+					margin-bottom: 0;
+					}
+
+		/* NOT YET DEVELOPED
+		div#notificationiconwrapper {*/ /*DIV tag that has an ID attribute value of "notificationiconwrapper" - it's what contains the various notificaiton/status icons*/ /*
+			float: right;
+			margin-top: 10px;
+			margin-right: 5px;
+			}
+		*/
+
+		div#logowrapper { /*DIV tag that has an ID attribute value of "logowrapper" - it's what contains the logo*/
+			float: left; /*left-aligns the logo area and removes it from standard document flow*/
+			height: 100%;
+			/*background-color: #000000;*/
+			/* the following prevents long-tap highlight/select... */
+			/* NOTE: this cannot go on the menu icon without causing bugs with hiding the menu by clicking the icon again */
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+			-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+
+			div#logowrapper img#logo { /*IMG tag that has an ID attribute value of "logo" - it's the actual logo image, itself*/
+				float: left;
+				/*margin-left: 5px;*/
+				/*margin-top: 5px;*/
+				height: 44px;
+				background-color: #000000;
+				padding: 8px 0 8px 0;
+				}
+
+			div#logowrapper div#logotext { /*SPAN tag that has an ID attribute value of "logotext" - it's the text accompanying the logo, ex. "MessageNet Connections"*/
+				float: left;
+				margin-left: 3px;
+				margin-top: 12px;
+				width: 95px; /*to force a word wrap*/
+				font-size: 14px;
+				color: #ffff00; /*yellow*/
+				font-style: italic;
+				display: none;
+				}
+
+		div#pagetitlewrapper { /*DIV tag that has an ID attribute value of "pagetitlewrapper" - it's what contains the "page's" title*/
+			/*float: left;*/ /*butts up against the right edge of the logowrapper element and removes from document flow*/
+			/*width: ;*/ /*DEV-NOTE: should be equal to page width minus logowrapper's width ~ perhaps minus any potential borders?*/
+			padding: 13px 5px 5px 10px;
+			font-size: 26px;
+			}/* Next, try to do special styling for mobile devices... */
+			@media 
+			(-webkit-min-device-pixel-ratio: 2),
+			(min-resolution: 192dpi),
+			only screen and(-webkit-min-device-pixel-ratio:2),
+			only screen and(min--moz-device-pixel-ratio:2),
+			only screen and(-o-min-device-pixel-ratio:2/1),
+			only screen and(min-device-pixel-ratio:2),
+			only screen and(min-resolution:192dpi),
+			only screen and(min-resolution:2dppx) {
+			div#pagetitlewrapper {
+			margin-top: 2px;
+			font-size: 26px;
+			}}
+		div#pagetitlewrapper.withsubtitle { /*override anything for use with subtitle below (main code must add this class)*/
+			padding-top: 6px; /*shift the text up to make room for the subtitle*/
+			}
+			div#pagetitlewrapper span#pagetitle {
+				white-space: nowrap;
+				position: absolute;
+				z-index: 98;
+				/*left: 155px;*/
+				left: 70px;
+				height: 90%; /*give a little space on the bottom for refreshing by click/tap - be careful not to overlap any favorites just below the header*/
+				padding-right: 800px; /*give a little space on the right for refreshing by click/tap - elements to the right are absolute and higher, so nothing should be impacted by this*/
+				padding-bottom: 5px; /*give a little space on the bottom for preventing accidental launches*/  /*NOTE: This value should match closely to the pixel offset in the scrollTo_animated routine*/;
+				color: #eeee66;
+				/* the following prevents long-tap highlight/select... */
+				/* NOTE: this cannot go on the menu icon without causing bugs with hiding the menu by clicking the icon again */
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+				}
+/*			div#pagetitlewrapper span#pagetitle::first-letter {
+				font-size: 1.4em;
+				vertical-align: middle;
+				}
+*/
+			div#pagetitlewrapper span#pagesubtitle { /*subtitle area -used for 'mobile'*/
+				font-size: .6em;
+				font-style: italic;
+				color: #dddddd;
+				position: relative;
+				top: 18px;
+				left: 16px;
+				/* the following prevents long-tap highlight/select... */
+				/* NOTE: this cannot go on the menu icon without causing bugs with hiding the menu by clicking the icon again */
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+				-webkit-tap-highlight-color: rgba(0,0,0,0);
+				}
+
+		button#btnDone {
+			font-size: 18px;
+			/*float: right;
+			margin: 9px 54px 0 5px;*/
+			z-index: 99;
+			position: absolute;
+			right: 53px;
+			top: 12px;
+			}
+
+		div#tabwrapper {
+			clear: left;
+			background-color: #666666;
+			text-align: center;
+			}
+
+	div#zoomcontrols {
+		text-align: center;
+		-moz-transition-property: all;
+		-moz-transition-duration: 1s;
+		-moz-transition-timing-function: ease-out;
+		-webkit-transition-property: all;
+		-webkit-transition-duration: 1s;
+		-webkit-transition-timing-function: ease-out;
+		-o-transition-property: all;
+		-o-transition-duration: 1s;
+		-o-transition-timing-function: ease-out;
+		transition-property: all;
+		transition-duration: 1s;
+		transition-timing-function: ease-out;
+		}
+		div#zoomcontrols button {
+			position: relative;
+			z-index: 1002;
+			height: 2.3em;
+			margin: 0;
+			font-size: 15px;
+			padding: 0;
+			}
+
+	/* DEV-NOTE: now we're using YUI gallery-sm-menu for much of this */
+	div#menuwrapper { /*DIV tag that has an ID attribute value of "menuwrapper" - it's what contains any menu items*/
+		visibility: hidden; /*even though YUI does this, this ensures that the menu won't briefly display before YUI has a chance to load*/
+		position: absolute; /*just ensure that the menu isn't positioned anywhere in the page (where it might affect flow/spacing) on initial page load*/
+		z-index: 1000; /*needs to be higher than the .yui3-widget-mask node, otherwise the menu will become unusable once shown*/
+		}
+
+		div#menuwrapper ul {
+			margin: 0;
+			padding: 0;
+			list-style-type: none;
+			background-color: #000000 !important;
+			}
+
+		div#menuwrapper li {
+			padding: 0 !important;
+			text-align: left;
+			}
+
+		div#menuwrapper li a {
+			padding: 12px 20px; /*spacing around the menu items (top/bottom left/right*/
+			color: #ffffff; /*color of menu item text*/
+			}
+
+	div#footerwrapper { /*DIV tag that has an ID attribute value of "footerwrapper" - it's what contains the entire page footer (like navigation, jump, etc.)*/
+		background-color: inherit; /*make this part have a dark background*/
+		height: 60px; /*if this is modified, you may also need to modify the drop-down menu code?*/
+		position: fixed; /*prevents the header from scrolling up out of view*/
+		width: 100%;
+		bottom: 0;
+		z-index: 1; /*just higher than bodywrapper*/
+		/*padding-top: 0px;*/
+		/* the following prevents long-tap highlight/select... */
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-tap-highlight-color: rgba(0,0,0,0);
+		/* the following tries to separate (or blend) the main messagecell area from the footer area... */
+		/*
+		background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%);
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(100%,rgba(0,0,0,1)));
+		background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
+		background: -o-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
+		background: -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
+		background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#000000',GradientType=0 );
+		*/
+		background-color: #000000; /*note: not needed if doing gradient blend above*/
+		background-position: top;
+		background-size: 100% 15px;
+		background-repeat: no-repeat;
+		-moz-transition-property: background-color;
+		-moz-transition-duration: 0.3s;
+		-moz-transition-timing-function: ease-out;
+		-webkit-transition-property: background-color;
+		-webkit-transition-duration: 0.3s;
+		-webkit-transition-timing-function: ease-out;
+		-o-transition-property: background-color;
+		-o-transition-duration: 0.3s;
+		-o-transition-timing-function: ease-out;
+		transition-property: background-color;
+		transition-duration: 0.3s;
+		transition-timing-function: ease-out;
+		}
+		div#footerwrapper div#jumpnavwrapper {
+			display: table;
+			width: 100%;
+			height: 100%;
+			/*background-color: #000000;*/ /*make this part have a dark background*/
+			background-color: rgba(0,0,0,0);
+			margin-top: 15px;
+			position: absolute; /*per CSS-specification (particularly IE9), this will prevent height being interpreted as 'auto' (http://www.w3.org/TR/CSS21/visudet.html#the-height-property)*/
+			}
+			span.jumpnavbutton {
+				display: table-cell;
+				width: 25%;
+				height: 100%;
+				text-align: center;
+				vertical-align: middle;
+				-moz-transition-property: all;
+				-moz-transition-duration: 0.2s;
+				-moz-transition-timing-function: ease-out;
+				-webkit-transition-property: all;
+				-webkit-transition-duration: 0.2s;
+				-webkit-transition-timing-function: ease-out;
+				-o-transition-property: all;
+				-o-transition-duration: 0.2s;
+				-o-transition-timing-function: ease-out;
+				transition-property: all;
+				transition-duration: 0.2s;
+				transition-timing-function: ease-out;
+				}
+			span.jumpnavbutton.static {
+				background-position: center;
+				background-repeat: no-repeat;
+				}
+				span.jumpnavbutton.static.short {
+					background-position: center 15px; /*tall icons are 46px high, short are 16px high... diff is 30, half of that is 15 ~ so appear vertically/middle-aligned to tall ones*/
+					}
+			span.jumpnavbutton.mask {
+				/* the following does the arrow icon masking which allows us to dynamically change colors */
+				/*-webkit-mask-position: center;*/ /*this one is common, others are dynamic and modified with javascript*/
+				-webkit-mask-position: center top; /*this one is common, others are dynamic and modified with javascript*/
+				-webkit-mask-repeat: no-repeat; /*this one is common, others are dynamic and modified with javascript*/
+				}
+			span.jumpnavbutton.mask.yellow {
+				background-color: #ffff00;
+				}
+			span.jumpnavbutton.mask.green {
+				background-color: #00ff00;
+				}
+			span.jumpnavbutton.mask:active {
+				-webkit-mask-size: 700%;
+				background-color: black;
+				}
+				span.jumpnavbutton.mask.inactive {
+					opacity: 0.5;
+					}
+				span.jumpnavbutton.mask.rotated180 {
+					-webkit-mask-position: center 29px; /*so when the arrows flip over, they'll be in the proper position lined up with the others*/
+					-webkit-transform: rotate(180deg);
+					-moz-transform: rotate(180deg);
+					-ms-transform: rotate(180deg);
+					-o-transform: rotate(180deg);
+					transform: rotate(180deg);
+					}
+			span.jumpnavbutton.static:active {
+				background-color: white;
+				}
+				span.jumpnavbutton.static.inactive {
+					opacity: 0.5;
+					}
+				span.jumpnavbutton.static.rotated180 {
+					background-position: center 29px; /*so when the arrows flip over, they'll be in the proper position lined up with the others*/
+					-webkit-transform: rotate(180deg);
+					-moz-transform: rotate(180deg);
+					-ms-transform: rotate(180deg);
+					-o-transform: rotate(180deg);
+					transform: rotate(180deg);
+					}
+				span.jumpnavbutton.static.rotated180:first-child {
+					background-position: center 23px; /*so when the firat (the tall one) arrow flips over, it'll be in the proper position, middle-aligned with the other (short) ones*/
+					}
+			span.jumpnavbutton.rotated0 {
+					-webkit-transform: rotate(0deg);
+					-moz-transform: rotate(0deg);
+					-ms-transform: rotate(0deg);
+					-o-transform: rotate(0deg);
+					transform: rotate(0deg);
+					}
+
+	div#bodywrapper {
+		clear: both;
+		top: 60px; /*shift down below headerwrapper, so nothing is hidden behind it*/
+		/*top: 80px;*/
+		/*padding-bottom: 60px;*/ /*make sure content at the bottom isn't hidden by the footerwrapper*/
+		padding-bottom: 510px; /*add extra blank area to bottom, so jumping will take user to even a bottom most section that's not very tall*/
+		position: relative;
+		/*position: absolute;*/ /*this breaks all window-scoped scrollTo methods*/
+		/*bottom:60px;*/ /*shfit up the bottom of the bodywrapper so it doesn't sit under the footerwrapper*/
+		overflow-y: auto;
+		width: 100%;
+		/*height: 100%;*/ /*DEV-NOTE: tweak this to use DOM to get and calculate actual height (window minus header)... seems to require absolute height (px, etc.)*/
+		z-index: 0; /*just lower than headerwrapper, so contents scroll up under it*/
+		-webkit-overflow-scrolling: touch; /*enable horizontal scrolling of any iframes that get rendered inside this node*/
+		/* transition causes weird bouncing behavior on iOS
+		-moz-transition-property: zoom;
+		-moz-transition-duration: .2s;
+		-moz-transition-timing-function: ease-in;
+		-webkit-transition-property: zoom;
+		-webkit-transition-duration: .2s;
+		-webkit-transition-timing-function: ease-in;
+		-o-transition-property: zoom;
+		-o-transition-duration: .2s;
+		-o-transition-timing-function: ease-in;
+		transition-property: zoom;
+		transition-duration: .2s;
+		transition-timing-function: ease-in;
+		*/
+		}
+		a.sectionAnchor {
+			margin-bottom: 10px; /*to give space between header and sections when jumping to anchors*/
+			}
+		a#bodywrapperTopAnchor {
+			display: block;
+			position: relative;
+			top: -60px;
+			visibility: hidden;
+			}
+		a#bodywrapperDropboxAnchor {
+			display: block;
+			/*position: relative;
+			top: -50px;*/
+			visibility: hidden;
+			}
+
+	/* SECTION CONTAINERS (just didn' give it an ideal name from the beginning) ~ these are the containers of our UL lists */
+	div.contentwrapper { /*DIV tag that has an CLASS attribute value of "contentwrapper"*/
+		width: 97%; /*content wrapper goes not-quite the full width of its parent node (which is: pagewrapper)*/
+		margin-left: auto; /*part 1-of-2 of what we need to do in order to center this node*/
+		margin-right: auto; /*part 2-of-2 of what we need to do in order to center this node*/
+		margin-top: 3px; /*shift this node down from the header area a little bit*/
+		margin-bottom: 0.75em; /*give a little visual breathing room at the very bottom of this wrapper*/
+		border: 0px solid #999999; /*give this node a border*/
+		background-color: #eeeeee; /*make the background a little lighter than the page's background - should give the appearance of a page within a page*/
+		padding: 2px 2px 1px 2px;
+		}/* Next, try to do special styling for mobile devices... */
+	@media 
+	(-webkit-min-device-pixel-ratio: 2),
+	(min-resolution: 192dpi),
+	only screen and(-webkit-min-device-pixel-ratio:2),
+	only screen and(min--moz-device-pixel-ratio:2),
+	only screen and(-o-min-device-pixel-ratio:2/1),
+	only screen and(min-device-pixel-ratio:2),
+	only screen and(min-resolution:192dpi),
+	only screen and(min-resolution:2dppx) {
+	div#pagetitlewrapper {
+		}
+	}
+	div.contentwrapper.collapsed, ul.messagelist.collapsed {
+		height: 44px;
+		overflow: hidden;
+		padding-bottom: 0;
+		/* animate collapse/expand...
+		-moz-transition: height 1s;
+		-webkit-transition: height 1s;
+		-o-transition: height 1s;
+		transition: height 1s;*/
+		}
+	ul.messagelist.collapsed {
+			margin-left: -2px;
+			margin-right: -2px;
+			padding-left: 2px;
+			padding-right: 2px;
+			-moz-border-radius: 8px 8px 0 0; /*firefox*/
+			-webkit-border-radius: 8px 8px 0 0; /*safari, chrome (fork of kthml)*/
+			-khtml-border-radius: 8px 8px 0 0; /*KDE HTML layout engines*/
+			border-radius: 8px 8px 0 0; /*css3*/
+			}
+
+	img.headericon { /*icons in the section headers (refresh, minimize, maximize, etc.)*/
+		float: right;
+		width: 22px; /* IE requires this to maintain aspect ratio */
+		height: 22px;
+		padding: 7px; /* provide larger tap/click area */
+		margin-top: -5px;
+		margin-bottom: -3px;
+		}
+
+	div#contentwrapper-inbox { /*DIV tag that has an ID attribute value of "contentwrapper-inbox"*/
+		background-color: #ccefff;
+		}
+		div#contentwrapper-inbox ul li:first-child {
+			background-color: #bbdeee;
+			}
+
+	div#contentwrapper-libraries { /*DIV tag that has an ID attribute value of "contentwrapper-libraries"*/
+		background-color: #D5FFF1;
+		}
+		div#contentwrapper-libraries ul li:first-child { /* the first LI of each UL at any level (title of the sub-sections) */
+			background-color: #B2FFE5;
+			}
+		div#contentwrapper-libraries li.sectionheader { /* the first LI (title of the section) */
+			background-color: #92DFC5 !important;
+			/*text-align: center;*/
+			font-size: 22px; /*slightly enlarge this text from the standard 16px*/
+			/*padding: 2px;*/ /*reduce the spacing around the sublist header text*/
+			margin-top: -2px;
+			margin-left: -2px;
+			margin-right: -2px;
+			margin-bottom: -8px;
+			padding-top: 8px !important;
+			padding-bottom: 16px !important;
+			padding-right: 2px;
+			font-weight: bold;
+			text-align: left;
+			padding-left: 12px;
+			}
+		div#contentwrapper-libraries ul li:first-child { /* the first LI of each UL at any level (title of the sub-sections) */
+			background-color: #B2FFE5;
+			margin-bottom: 1px;
+			}
+
+	/* will deprecate? */
+	div#contentwrapper-aux1 {
+		background-color: #ffeecc;
+		}
+		div#contentwrapper-aux1 ul li:first-child {
+			background-color: #E7DDAE;
+			}
+
+	/* MESSAGES LISTS (ACTUAL ACTIONABLE MESSAGE/FAVORITES ITEMS)... */
+	ul.messagelist { /*any UL tag that has a CLASS attribute value of "messagelist"*/
+		margin-top: 0;
+		margin-bottom: 0;
+		padding-left: 0;
+		list-style-type: none;
+		}
+		ul.messagelist li {
+			/* the following prevents long-tap highlight/select... */
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+			-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+
+	    /* GENERALIZED MESSAGE ITEMS... */
+		ul.messagelist li.messagecell {
+			border-bottom: 1px solid #bbbbbb; /* give the bottom edge of this a light border (will give the impression of dividing lines between favorite messages)*/
+			padding-top: 0.5em;
+			padding-right: 0.25em;
+			padding-bottom: 0.5em;
+			padding-left: 0.25em;
+			}
+		ul.messagelist li.messagecell:nth-child(2) {
+			/*padding-top: 16px;*/ /*to offset the 8px negative margin of the major section header list item*/
+		}
+		ul.messagelist li.messagecell:active { /*The following styles get applied to any LI tags that have a CLASS attribute value of "messagecell" when they are clicked or tapped on*/
+			/*background-color: #dddddd;*/ /*specify a different color for messages whenever moused-over*/
+			}
+
+			li.messagecell div.iconwrapper { /*The following styles get applied to any DIV tags that have a CLASS attribute value of "iconwrapper" (provided that they are nested inside "messagecell")*/
+				float: left; /*take this node out of the document flow so stuff will go around it*/
+				}
+				li.messagecell div.iconwrapper img { /*The following styles get applied to any IMG tag located inside the DIVs specified in this compound selector*/
+					vertical-align: top; /*make any text flowing around this, align to the topline of this image*/
+					margin-right: 0.5em; /*provide some spacing between this icon and any text next to it*/
+					border: 0; /*to force IE not to show a border around the image, in case it's inside an A tag*/
+					}
+				li.messagecell div.iconwrapper span.bigblackbullet { /*The following styles get applied to any SPAN tag located inside the DIVs specified in this compound selector (ex. a non-graphical bullet) */
+					font-size: 38px;
+					margin-left: 5px;
+					margin-right: 13px; /*provide some spacing between this icon and any text next to it*/
+					line-height: 32px;
+					}
+
+			li.messagecell div.textwrapper { /*The following styles get applied to any DIV tags that have a CLASS attribute value of "textwrapper" (provided that they are nested inside "messagecell")*/
+				word-wrap: break-word; /*to force words to wrap even if no white space - prevents unnecessary horizontal scrolling*/
+				}
+				li.messagecell div.textwrapper div.namewrapper {
+					margin-top: 2px;
+					font-size: 14px; /*specify the size of the message name (or custom name) text*/
+					}
+				li.messagecell div.textwrapper div.descriptionwrapper {
+					font-size: 12px; /*specify the size of the message's descriptive text*/
+					}
+				li.messagecell div.textwrapper div.fromwrapper {
+					margin-top: 2px;
+					font-size: 14px; /*specify the size of the inbox-message's from-person text*/
+					}
+				li.messagecell div.textwrapper div.msgwrapper {
+					font-size: 14px; /*specify the size of the inbox-message's text*/
+					}
+				li.messagecell div.textwrapper div.notewrapper {
+					font-size: 12px; /*specify the size of the inbox-message's sender's note text*/
+					color: #555555;
+					}
+
+			li.messagecell div.actionwrapper {
+				float: right;
+				padding: 0 10px 0 8px; /*this helps dragging (or any interactions) to be easier to initiate on touch devices*/
+				margin-right: -8px;
+				}
+				ul.messagelist li.messagecell div.actionwrapper img#draghandleicon {
+					margin: -2px 0 -3px 0; /*these icons are 32px, which slightly expands the messagecell whenever they're displayed, resulting in a jarring change whenever changing interaction-mode... so this corrects that*/
+					}
+				ul.messagelist li.messagecell div.actionwrapper img.affectedbyinteractionmode {
+					}
+				ul.messagelist li.messagecell div.actionwrapper img.affectedbytoggle {
+					height: 46px;
+					margin-top: -8px;
+					margin-bottom: -10px;
+					}
+
+			li.messagecell div.clearfloats {	/*used for removing float at end of each messagecell*/
+				clear: both;
+				}
+
+	    /* SPECIFIC MESSAGE ITEMS... (these may override general items above) */
+		ul.messagelist li.sublistheader {
+			/*text-align: center;*/
+			font-size: 22px; /*slightly enlarge this text from the standard 16px*/
+			padding: 10px 2px; /*spacing around the sublist header text*/
+			margin-top: -2px;
+			margin-left: -2px;
+			margin-right: -2px;
+			text-align: left;
+			padding-left: 12px;
+			font-weight: bold;
+			}
+		ul.messagelist li.sublistheader:hover {
+			background-color: inherit; /*don't change color on hover like most other LI nodes do... instead inherit from its parent*/
+			}
+
+		ul.messagelist li.nomessages {
+			font-weight: normal;
+			padding: 2px;
+			height: 42px;
+			padding-top: 12px;
+			margin-bottom: -12px;
+			padding-left: 10px;
+			}
+		ul.messagelist li.nomessages:hover {
+			background-color: inherit;
+			}
+
+		ul.messagelist li.sorted { /*The following styles get applied to any LI tags that have a CLASS attribute value of "sorted"*/
+			}
+		ul.messagelist li.sorted:hover { /*The following styles get applied to any LI tags that have a CLASS attribute value of "sorted" when they are hovered over by the mouse*/
+			}
+
+		ul.messagelist li.unsorted { /*The following styles get applied to any LI tags that have a CLASS attribute value of "unsorted"*/
+			background-color: #ffeecc; /*give newly-added favorite messages a distinct color*/
+			}
+		ul.messagelist li.unsorted:hover { /*The following styles get applied to any LI tags that have a CLASS attribute value of "unsorted" when they are hovered over by the mouse*/
+			/*background-color: #eeddbb;*/ /*specify a color for unsorted messages whenever moused-over*/
+			}
+
+		ul.messagelist li.inboxmsg { /*The following styles get applied to any LI tags that have a CLASS attribute value of "inboxmsg"*/
+			}
+		ul.messagelist li.inboxmsg:hover { /*The following styles get applied to any LI tags that have a CLASS attribute value of "inboxmsg" when they are hovered over by the mouse*/
+			/*background-color: #aacedd;*/ /*specify a color for inbox messages whenever moused-over*/
+			}
+
+		ul.messagelist li.libmsg { /*The following styles get applied to any LI tags that have a CLASS attribute value of "libmsg"*/
+			}
+		ul.messagelist li.libmsg:hover { /*The following styles get applied to any LI tags that have a CLASS attribute value of "stdlibmsg" when they are hovered over by the mouse*/
+			background-color: #C5EFE1; /*specify a color for standard library messages whenever moused-over*/
+			}
+
+		ul.messagelist li:last-child {
+			border-bottom: 0; /*take away the bottom border line from the very last favorite message (since these are already inside a box-like area)*/
+			}
+
+	/* SUB-SECTION LISTS (CONTAINERS FOR NESTED MESSAGELISTS)... */
+	ul.subsectionlist { /*any UL tag that has a CLASS attribute value of "subsectionlist" */
+		margin-top: 0;
+		margin-bottom: 0;
+		padding-left: 0;
+		list-style-type: none;
+		}
+		ul.subsectionlist li { /* subsection-list's container node */
+			/* the following prevents long-tap highlight/select... */
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+			-webkit-tap-highlight-color: rgba(0,0,0,0);
+			}
+		li.sectionheader { /* the first LI (title of the section) */
+			/*text-align: center;*/
+			font-size: 22px; /*slightly enlarge this text from the standard 16px*/
+			/*padding: 2px;*/ /*reduce the spacing around the sublist header text*/
+			margin-top: -2px;
+			margin-left: -2px;
+			margin-right: -2px;
+			/*margin-bottom: -8px;*/
+			padding-top: 10px !important;
+			padding-bottom: 10px !important;
+			padding-right: 2px;
+			font-weight: bold;
+			text-align: left;
+			padding-left: 12px;
+			}
+		li.subsectionheader {
+			font-weight: normal !important;
+			border-top: 1px solid #bbbbbb;
+			border-bottom: 1px solid #bbbbbb;
+			}
+
+	/*ul.messagegrid {} any UL tag that has a CLASS attribute value of "messagegrid"*/
+
+/* This is the pop-up YUI Panel for editing a favorite message */
+#panelEditSubheader-personalLibs {
+	}
+	#panelEditSubheader-personalLibs #btn-addnewheaderabove {
+		float: right;
+		margin: -3px -22px 0 0;
+		padding: 5px;
+		}
+	#panelEditSubheader-personalLibs div#subsection-preview {
+		margin-bottom: 0.7em;
+		}
+		#panelEditSubheader-personalLibs div#subsection-preview-subheader {
+			height: 28px;
+			padding: 6px;
+			}
+			#panelEditSubheader-personalLibs div#subsection-preview-subheader input {
+				background-color: inherit;
+				border: 0;
+				font-size: 18px;
+				}
+		#panelEditSubheader-personalLibs div#subsection-preview-subsection {
+			height: 14px;
+			}
+	#panelEditSubheader-personalLibs .colortilecontainer {
+		/*max-width: 200px;*/ /*max of five 32px tiles (plus padding/margins) across*/
+		display: block;
+		width: 100%;
+		}
+		#panelEditSubheader-personalLibs .colortilecontainer span { /*wraps the color-tile rows*/
+			display: inline;
+			margin-left: auto;
+			margin-right: auto;
+			}
+			#panelEditSubheader-personalLibs .colortilecontainer span div { /*each row of color tiles*/
+				display: inline-block;
+				}
+				#panelEditSubheader-personalLibs .colortilecontainer .colortile {
+					border: 1px solid gray;
+					width: 36px;
+					height: 36px;
+					padding: 0;
+					margin: 4px 7px;
+					display: inline-block; /*must do this otherwise width/height won't work*/
+					}
+	#panelEditSubheader-personalLibs table {
+		width: 100%;
+		}
+		#panelEditSubheader-personalLibs td.fieldlabel {
+			vertical-align: top;
+			padding-right: 8px !important;
+			}
+		#panelEditSubheader-personalLibs td.field {
+			width: 100%;
+			}
+		#panelEditSubheader-personalLibs td.field input {
+			width: 73%; /*text fields stretch across the entire cell (with room for char counter) - so has to be less than 97% on skinny screens such as iPhone*/
+			max-width: 15em; /*text fields stretch across the entire cell*/
+			}
+		#panelEditSubheader-personalLibs td.field span.charcountdisplay { /*field character count - normal*/
+			font-size: .75em;
+			color: #999999;
+			margin-left: 4px;
+			}
+		#panelEditSubheader-personalLibs td.field span.charcountdisplay.warn { /*field character count - warning*/
+			color: #ff3333;
+			font-weight: bold;
+			}
+/* This is the pop-up YUI Panel for editing a favorite message */
+form#form_editFavMsg {
+	}
+	form#form_editFavMsg table {
+		width: 100%;
+		}
+	form#form_editFavMsg td.headercell {
+		font-weight: bold;
+		text-align: left;
+		background-color: #ccddee; /*darker shade of light blue*/
+		padding: 3px 0 3px 5px;
+		}
+	form#form_editFavMsg td.fieldlabel {
+		/*white-space: nowrap;*/ /*mobile screen might be very very small*/
+		vertical-align: middle;
+		/*padding-top: 4px;*/
+		}
+	form#form_editFavMsg td.fieldlabel:last-child {
+		/*do rounded bottom-left corner -- check pseudo-selector syntax*/
+		}
+	form#form_editFavMsg td.field {
+		width: 100%; /*This won't actually use up 100% of width, since it's not the only column, but maximizes its width as much as possible*/
+		white-space: nowrap;
+		}
+		form#form_editFavMsg td.field img {
+			margin-top: -2px;
+			}
+		form#form_editFavMsg label {
+			font-size: 13px;
+			padding-right: 10px;
+			}
+		form#form_editFavMsg td.field input {
+			width: 87%; /*text fields stretch across the entire cell (with room for char counter) - so has to be less than 97% on skinny screens such as iPhone*/
+			max-width: 25em; /*text fields stretch across the entire cell*/
+			}
+		form#form_editFavMsg td.field input.checkbox {
+			width: auto;
+			-webkit-transform: scale(1.5);
+			margin: 0 4px 0 3px;
+			}
+		form#form_editFavMsg td.field textarea {
+			width: 86%;
+			border: 2px inset #eee;
+			}
+		form#form_editFavMsg td.field span.charcountdisplay { /*field character count - normal*/
+			font-size: .75em;
+			color: #999999;
+			margin-left: 4px;
+			}
+		form#form_editFavMsg td.field span.charcountdisplay.warn { /*field character count - warning*/
+			color: #ff3333;
+			font-weight: bold;
+			}
+	form#form_editFavMsg div#favmsgwrapper {
+		width: 100%;
+		padding-bottom: .5em;
+		/*border-bottom: 1px solid gray;*/
+		margin-bottom: .5em;
+		}
+	form#form_editFavMsg div#msgtemplateinfo {
+		margin-top: 5px;
+		width: 100%;
+		background-color: #edf5ff; /*light-blue background matches standard YUI Panel footer (SAM skin?)*/
+		/*border: 1px solid #ccddee;*/
+		color: #555555; /*lighter-shade of text*/
+		font-size: .85em;
+		}
+	form#form_editFavMsg div#msgtemplateinfo a {
+		cursor: pointer;
+		cursor: hand;
+		}
+	form#form_editFavMsg div#msgtemplateinfo table {
+		border-collapse: collapse;
+		}
+	form#form_editFavMsg div#msgtemplateinfo td.fieldlabel {
+		/*padding-top: 0;*/
+		white-space: nowrap;
+		background-color: #ddeeff;
+		text-align: left;
+		padding-left: 5px;
+		}
+	form#form_editFavMsg div#msgtemplateinfo td.fieldvalue {
+		width: 100%;
+		font-size: .95em;
+		padding-left: 5px;
+		}
+/* This is the pop-up YUI Panel for undeleting a favorite message */
+form#form_undeleteFavMsg {
+	}
+	form#form_undeleteFavMsg table {
+		width: 100%;
+		}
+	form#form_undeleteFavMsg td.headercell {
+		font-weight: bold;
+		text-align: left;
+		background-color: #ccddee; /*darker shade of light blue*/
+		padding: 3px 0 3px 5px;
+		}
+	form#form_undeleteFavMsg td.fieldlabel {
+		/*white-space: nowrap;*/ /*mobile screen might be very very small*/
+		vertical-align: middle;
+		/*padding-top: 4px;*/
+		}
+	form#form_undeleteFavMsg td.fieldlabel:last-child {
+		/*do rounded bottom-left corner -- check pseudo-selector syntax*/
+		}
+	form#form_undeleteFavMsg td.field {
+		width: 100%; /*This won't actually use up 100% of width, since it's not the only column, but maximizes its width as much as possible*/
+		white-space: nowrap;
+		}
+		form#form_undeleteFavMsg td.field img {
+			margin-top: -2px;
+			}
+		form#form_undeleteFavMsg td.field input {
+			width: 87%; /*text fields stretch across the entire cell (with room for char counter) - so has to be less than 97% on skinny screens such as iPhone*/
+			max-width: 25em; /*text fields stretch across the entire cell*/
+			}
+		form#form_undeleteFavMsg td.field span.charcountdisplay { /*field character count - normal*/
+			font-size: .75em;
+			color: #999999;
+			margin-left: 4px;
+			}
+		form#form_undeleteFavMsg td.field span.charcountdisplay.warn { /*field character count - warning*/
+			color: #ff3333;
+			font-weight: bold;
+			}
+	form#form_undeleteFavMsg div#favmsgwrapper {
+		width: 100%;
+		padding-bottom: .5em;
+		/*border-bottom: 1px solid gray;*/
+		margin-bottom: .5em;
+		}
+	form#form_undeleteFavMsg div#msgtemplateinfo {
+		margin-top: 5px;
+		width: 100%;
+		background-color: #edf5ff; /*light-blue background matches standard YUI Panel footer (SAM skin?)*/
+		/*border: 1px solid #ccddee;*/
+		color: #555555; /*lighter-shade of text*/
+		font-size: .85em;
+		}
+	form#form_undeleteFavMsg div#msgtemplateinfo table {
+		border-collapse: collapse;
+		}
+	form#form_undeleteFavMsg div#msgtemplateinfo td.fieldlabel {
+		/*padding-top: 0;*/
+		white-space: nowrap;
+		background-color: #ddeeff;
+		text-align: left;
+		padding-left: 5px;
+		}
+	form#form_undeleteFavMsg div#msgtemplateinfo td.fieldvalue {
+		width: 100%;
+		font-size: .95em;
+		padding-left: 5px;
+		}
+
+.ModalNotification {
+	margin-left: auto;	/*center the modal notification in the window*/
+	margin-right: auto;	/*center the modal notification in the window*/
+	padding-top: 8px;	/*provide some vertical breathing room for the text inside the modal notification*/
+	padding-bottom: 8px;	/*provide some vertical breathing room for the text inside the modal notification*/
+	text-align: center;
+	border: 0;
+	}
+
+iframe#internalPopupBodyContent { /*the iframe that resides inside a YUI panel for overriding window.open popups - the YUI Panel handles the size, so this should utilize all available*/
+	display: none; /*initial display should be this, to prevent mobile Safari iOS7.1.1 from preventing clicks in the area where it may be shown*/
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	height: 100%;
+	border: 0;
+	}
+
+.MessageReplyDialog {
+	margin-left: auto;	/*center the modal notification in the window*/
+	margin-right: auto;	/*center the modal notification in the window*/
+	border: 0;
+	background-color: #ccefff; /* B2FFE5 */
+	}
+	.MessageReplyDialog div.textwrapper {
+		}
+	.MessageReplyDialog button#btnReply {
+		text-align: left;
+		margin: 1em 0 1.25em 0;
+		padding: 8px 6px;
+		width: 100%;
+		font-size: 16px;
+		min-height: 48px;
+		/* the following automatically truncates long text with an ellipsis... */
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		}
+		.MessageReplyDialog img.favIcon {
+			vertical-align: middle;
+			margin-right: 0.5em;
+			}
+		.MessageReplyDialog textarea {
+			width: 98%;
+			max-width: 98%;
+			height: auto;
+			font-size: 16px;
+			background-color: #f6f6ff;
+			border-color:#cccccc;
+			}
+			.MessageReplyDialog textarea::-webkit-input-placeholder {
+				font-size: 16px;
+				}
+
+.MessageConfirmDialog {
+	margin-left: auto;	/*center the modal notification in the window*/
+	margin-right: auto;	/*center the modal notification in the window*/
+	border: 0;
+	}
+.MessageConfirmDialog.confirmsend {
+	background-color: #9FD19F !important; /*light green*/
+	}
+.MessageConfirmDialog.confirmclosemsg {
+	background-color: #E25E5E !important; /*light red*/
+	}
+.MessageConfirmDialog.confirmrespond {
+	background-color: #ccefff !important; /*light blue*/
+	}
+	.MessageConfirmDialog div.textwrapper {
+		}
+	.MessageConfirmDialog button#btnMsg {
+		text-align: left;
+		margin: 1em 0 1.25em 0;
+		padding: 8px 6px;
+		width: 100%;
+		font-size: 16px;
+		min-height: 48px;
+		/*padding-left: 40px;*/ /* hanging text indent 1of2 */
+		/*line-height: 0;*/ /*NOTE: this breaks button height for some reason*/
+		/* the following automatically truncates long text with an ellipsis... */
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		}
+		.MessageConfirmDialog button#btnMsg div.msgwrapper {
+			margin-top: 6px;
+			/* the following automatically truncates long text with an ellipsis... */
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			}
+		.MessageConfirmDialog img.favIcon {
+			vertical-align: middle;
+			margin-right: 0.5em;
+			/*margin-left: -40px;*/ /* hanging text indent 2of2 */
+			}
+
+button#btnClose {
+	border: none;
+	background: none;
+	float: right;
+	/* old icon...
+	margin-top: -13px;
+	margin-right: -18px; */
+	margin-top: -5px;
+	margin-right: -10px;
+	}
+	@media 
+	(-webkit-min-device-pixel-ratio: 2),
+	(min-resolution: 192dpi),
+	only screen and(-webkit-min-device-pixel-ratio:2),
+	only screen and(min--moz-device-pixel-ratio:2),
+	only screen and(-o-min-device-pixel-ratio:2/1),
+	only screen and(min-device-pixel-ratio:2),
+	only screen and(min-resolution:192dpi),
+	only screen and(min-resolution:2dppx) {
+	button#btnClose {
+	margin-right: -15px;
+	}}
+button#btnClose img {
+	width: 24px;
+	height: 24px;
+	}
+
+.panelheaderwrapper {
+	font-size: 22px;
+	}
+
+
+/*************************************************************************************
+* Misc. Styles
+*************************************************************************************/
+a:link { /*The following styles get applied to any A tag on the page that is a standard link (as long as it's not overridden of course) */
+	color: #20b0af; /*the lighter MessageNet teal/blue color*/
+	text-decoration: none;
+	}
+a:visited { /*The following styles get applied to any A tag on the page that points to a page in the user's browser history (as long as it's not overridden of course) */
+	color: #20b0af; /*the lighter MessageNet teal/blue color*/
+	text-decoration: none;
+	}
+a:hover { /*The following styles get applied to any A tag on the page that the user holds their mouse over (as long as it's not overridden of course) */
+	color: #20b0af; /*the lighter MessageNet teal/blue color*/
+	text-decoration: none;
+	}
+a:active { /*The following styles get applied to any A tag on the page that points to the page that's currently loaded (as long as it's not overridden of course) */
+	color: #20b0af; /*the lighter MessageNet teal/blue color*/
+	text-decoration: none;
+	}
+
+div#headerwrapper a:link { /*The following styles get applied to any A tag (within the "headerwrapper" DIV) that is a standard link */
+	color: #20b0af; /*the lighter MessageNet teal/blue color*/
+	text-decoration: none;
+	}
+div#headerwrapper a:visited { /*The following styles get applied to any A tag (within the "headerwrapper" DIV) that is a link that the user has visited before */
+	color: #20b0af; /*the lighter MessageNet teal/blue color*/
+	text-decoration: none;
+	}
+div#headerwrapper a:hover { /*The following styles get applied to any A tag (within the "headerwrapper" DIV) that is a link that the user is hovering their mouse over */
+	color: #20b0af; /*the lighter MessageNet teal/blue color*/
+	text-decoration: underline;
+	}
+div#headerwrapper a:active { /*The following styles get applied to any A tag (within the "headerwrapper" DIV) that is a link that's currently loaded */
+	color: #20b0af; /*the lighter MessageNet teal/blue color*/
+	text-decoration: none;
+	}

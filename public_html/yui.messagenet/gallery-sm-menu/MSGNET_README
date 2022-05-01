@@ -1,0 +1,12 @@
+Note:
+
+Even though this module is loaded from our own custom yui.messagenet directory, 
+"it" (specifically the YUI seed file) seems to always want to load this module's
+CSS file from the default YUI directory -- this results in nothing working,
+because the client/browser cannot find the file.
+
+If you update YUI, you must make sure this module's CSS file is still inside
+the main YUI directory.
+
+Specifically,
+./assets/skins/sam/gallery-sm-menu/
